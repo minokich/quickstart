@@ -44,6 +44,77 @@ import {
       <input type="button" value="フラグ切り替え" (click)="styleFlagChange()" />
     </div>
     <div class="block">
+      <h3>イベントバインディング</h3>
+      <input type="button" (click)="timeShow()" value="現在時刻" />
+      {{ msg }}
+      <div class="box" on-mousemove="mouseMove($event)">
+        <p>screen : {{ mousePotion.screenX }}x{{ mousePotion.screenY }}</p>
+        <p>page : {{ mousePotion.pageX }}x{{ mousePotion.pageY }}</p>
+        <p>client : {{ mousePotion.clientX }}x{{ mousePotion.clientY }}</p>
+        <p>offset : {{ mousePotion.offsetX }}x{{ mousePotion.offsetY }}</p>
+      </div>
+
+      <div>
+        <h4>kedown</h4>
+        <form>
+          <label for="key">キー入力</label>
+          <input id="key" name="key" (keydown)="keyDownEvent($event)" />
+        </form>
+        <div>キーコード : {{ keyProp.which }}</div>
+        <div [hidden]="!keyProp.altKey">[ALT]</div>
+        <div [hidden]="!keyProp.ctrlKey">[CTRL]</div>
+        <div [hidden]="!keyProp.shiftKey">[SHIFT]</div>
+      </div>
+      <div>
+        <h4>デフォルト動作の抑制</h4>
+        <form>
+          <label for="zip">郵便番号：</label>
+          <input
+            id="zip"
+            name="zip"
+            type="text"
+            size="10"
+            (keypress)="mask($event)"
+          />
+        </form>
+      </div>
+      <div>
+        <h4>イベントのバブリング(親要素への伝播)キャンセル</h4>
+        <div id="outter" (click)="onclick1()">
+          outter
+          <div id="inner" (click)="onclick2($event)">inner</div>
+        </div>
+      </div>
+      <div>
+        <h4>テンプレート参照変数(要素内)</h4>
+        <input
+          #txt
+          id="txt"
+          name="txt"
+          type="text"
+          (input)="addListItem(txt.value)"
+        />
+        <ul [innerHTML]="liHtml"></ul>
+      </div>
+      <div>
+        <h4>テンプレート参照変数(要素外)</h4>
+        <label>姓<input #last type="text" (change)="(0)"/></label><br />
+        <label>名<input #first type="text" (change)="(0)"/></label>
+        <div>こんにちは、{{ last.value }}{{ first.value }}さん</div>
+      </div>
+      <div>
+        <h4>keyup.enter</h4>
+        <input
+          #txtEn
+          id="txtEn"
+          name="txtEn"
+          type="text"
+          (keyup.enter)="addListItemEn(txtEn.value)"
+        />
+        <ul [innerHTML]="liHtmlEn"></ul>
+      </div>
+    </div>
+    <div class="block">
       <h3>innerHtmlと外部リソースの埋め込み</h3>
       <div [innerHTML]="safeMsg"></div>
       <iframe [src]="safeUrl"></iframe>
@@ -54,6 +125,12 @@ import {
       .block {
         border: solid 1px;
       }
+      .box {
+        margin: 50px;
+        width: 300px;
+        height: 300px;
+        border: solid 1px #000;
+      }
       .red {
         color: red;
       }
@@ -62,6 +139,20 @@ import {
       }
       .bold {
         font-weight: bold;
+      }
+      #outter {
+        height: 200px;
+        widht: 350px;
+        margin: 50px;
+        padding: 10px;
+        border: 1px solid #000;
+      }
+      #inner {
+        height: 10px;
+        width: 100px;
+        margin: 50px auto auto 30px;
+        padding: 20px;
+        border: 1px solid #000;
       }
     `
   ]
@@ -82,17 +173,74 @@ export class AppComponent {
   styleFlagChange() {
     this.bgRed = !this.bgRed;
   }
+  msg: string = "---";
+  timeShow() {
+    this.msg = new Date().toLocaleString();
+  }
+  mousePotion = {
+    screenX: 0,
+    screenY: 0,
+    pageX: 0,
+    pageY: 0,
+    clientX: 0,
+    clientY: 0,
+    offsetX: 0,
+    offsetY: 0
+  };
+  mouseMove(e: any) {
+    this.mousePotion.screenX = e.screenX;
+    this.mousePotion.screenY = e.screenY;
+    this.mousePotion.pageX = e.pageX;
+    this.mousePotion.pageY = e.pageY;
+    this.mousePotion.clientX = e.clientX;
+    this.mousePotion.clientY = e.clientY;
+    this.mousePotion.offsetX = e.offsetX;
+    this.mousePotion.offsetY = e.offsetY;
+  }
+  keyProp = {
+    which: "",
+    altKey: false,
+    ctrlKey: false,
+    shiftKey: false
+  };
+  keyDownEvent(e: any) {
+    this.keyProp.which = e.which;
+    this.keyProp.altKey = e.altKey;
+    this.keyProp.ctrlKey = e.ctrlKey;
+    this.keyProp.shiftKey = e.shiftKey;
+  }
+  mask(e: any) {
+    const k = e.which;
+    if (!((k >= 48 && k <= 57) || k === 45 || k === 8 || k === 0)) {
+      e.preventDefault();
+    }
+  }
+  onclick1(e: any) {
+    console.log("outterをクリック");
+  }
+  onclick2(e: any) {
+    e.stopPropagation();
+    console.log("innerをクリック");
+  }
+  liHtml: string = "";
+  addListItem(input: string) {
+    this.liHtml += `<li>${input}</li>`;
+  }
+  liHtmlEn: string = "";
+  addListItemEn(input: string) {
+    this.liHtmlEn += `<li>${input}</li>`;
+  }
   safeMsg: SafeHtml;
   SafeUrl: SafeResourceUrl;
   image: string = "http://www.wings.msn.to/image/wings.jpg";
-  msg: string = `
+  html: string = `
     <p>hogehogehogehoge</p>
     <input type="button" onclick="alert('HOGE')" value="ボタン" />
   `;
   url: string = "http://www.wings.msn.to/";
 
   constructor(private sanitizer: DomSanitizer) {
-    this.safeMsg = sanitizer.bypassSecurityTrustHtml(this.msg);
+    this.safeMsg = sanitizer.bypassSecurityTrustHtml(this.html);
     this.SafeUrl = sanitizer.bypassSecurityTrustResourceUrl(this.url);
   }
 }
