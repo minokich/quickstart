@@ -119,6 +119,44 @@ import {
       <div [innerHTML]="safeMsg"></div>
       <iframe [src]="safeUrl"></iframe>
     </div>
+    <div class="block">
+      <div>
+        <h3>基本の双方向バインディング</h3>
+        <form>
+          <label for="wBind">名前:</label>
+          <input id="wBind" name="wBind" type="text" [(ngModel)]="myName" />
+          <div>こんにちは、{{ myName }}さん</div>
+        </form>
+      </div>
+      <div>
+        <h3>ngModelChangeを使った双方向バインディング</h3>
+        <form>
+          <label for="wBind2">名前:</label>
+          <input
+            id="wBind2"
+            name="wBind2"
+            type="text"
+            [ngModel]="myName2"
+            (ngModelChange)="myName2 = $event"
+          />
+          <div>こんにちは、{{ myName2 }}さん</div>
+        </form>
+      </div>
+      <div>
+        <h3>バインディング時にデータの加工を行う</h3>
+        <form>
+          <label for="wBind3">名前:</label>
+          <input
+            id="wBind3"
+            name="wBind3"
+            type="text"
+            [ngModel]="myName3"
+            (ngModelChange)="myName3 = $event.toUpperCase()"
+          />
+          <div>こんにちは、{{ myName3 }}さん</div>
+        </form>
+      </div>
+    </div>
   `,
   styles: [
     `
@@ -231,16 +269,18 @@ export class AppComponent {
     this.liHtmlEn += `<li>${input}</li>`;
   }
   safeMsg: SafeHtml;
-  SafeUrl: SafeResourceUrl;
+  safeUrl: SafeResourceUrl;
   image: string = "http://www.wings.msn.to/image/wings.jpg";
   html: string = `
     <p>hogehogehogehoge</p>
     <input type="button" onclick="alert('HOGE')" value="ボタン" />
   `;
   url: string = "http://www.wings.msn.to/";
-
+  myName: string = "田中";
+  myName2: string = "山口";
+  myName3: string = "Hatanaka";
   constructor(private sanitizer: DomSanitizer) {
     this.safeMsg = sanitizer.bypassSecurityTrustHtml(this.html);
-    this.SafeUrl = sanitizer.bypassSecurityTrustResourceUrl(this.url);
+    this.safeUrl = sanitizer.bypassSecurityTrustResourceUrl(this.url);
   }
 }
