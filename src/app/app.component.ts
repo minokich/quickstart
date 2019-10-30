@@ -144,6 +144,7 @@ import {
       </div>
       <div>
         <h3>バインディング時にデータの加工を行う</h3>
+        <small>アルファベットを大文字に</small>
         <form>
           <label for="wBind3">名前:</label>
           <input
@@ -155,6 +156,104 @@ import {
           />
           <div>こんにちは、{{ myName3 }}さん</div>
         </form>
+      </div>
+    </div>
+    <div class="block">
+      <h3>パイプ</h3>
+      <div>
+        <h4>文字列の整形</h4>
+        <p>元の文字列:{{ pipeTitle }}</p>
+        <p>uppercase:{{ pipeTitle | uppercase }}</p>
+        <p>lowercase:{{ pipeTitle | lowercase }}</p>
+        <p>titlecase:{{ pipeTitle | titlecase }}</p>
+      </div>
+      <div>
+        <h4>objectのjson形式変換</h4>
+        <pre>{{ obj | json }}</pre>
+        <small>※undefinedのものやfunctionは変換されていない</small>
+      </div>
+      <div>
+        <h4>文字列の切り出し</h4>
+        <ul>
+          <li>{{ sliceStr }}(元の文字列)</li>
+          <li>{{ sliceStr | slice: 3 }}(3)</li>
+          <li>{{ sliceStr | slice: 3:5 }}(3 : 5)</li>
+          <li>{{ sliceStr | slice: 7 }}(7)</li>
+          <li>{{ sliceStr | slice: -3 }}(-3)</li>
+          <li>{{ sliceStr | slice: -3:-2 }}(-3 : -2)</li>
+          <li>{{ sliceStr | slice: -10 }}(-10)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>文字列の切り出し</h4>
+        <ul>
+          <li>{{ sliceAry }}(元の配列)</li>
+          <li>{{ sliceAry | slice: 3 }}(3)</li>
+          <li>{{ sliceAry | slice: 3:5 }}(3 : 5)</li>
+          <li>{{ sliceAry | slice: 7 }}(7)</li>
+          <li>{{ sliceAry | slice: -3 }}(-3)</li>
+          <li>{{ sliceAry | slice: -3:-2 }}(-3 : -2)</li>
+          <li>{{ sliceAry | slice: -10 }}(-10)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>数値の整形</h4>
+        <ul>
+          <li>元の数値 : {{ pipePrice | number }}</li>
+          <li>少数第二位(5.0-2) : {{ pipePrice | number: "5.0-2" }}</li>
+          <li>整数(1.0-0) : {{ pipePrice | number: "1.0-0" }}</li>
+        </ul>
+      </div>
+      <div>
+        <h4>数値を貨幣へ変換</h4>
+        <ul>
+          <li>デフォルト : {{ pipePrice | currency }}</li>
+          <li>コード : {{ pipePrice | currency: "JPY" }}</li>
+          <li>単位(円) : {{ pipePrice | currency: "JPY":true }}</li>
+          <li>単位(ユーロ) : {{ pipePrice | currency: "EUR":true }}</li>
+          <li>桁数指定 : {{ pipePrice | currency: "JPY":true:"1.0-1" }}</li>
+        </ul>
+      </div>
+      <div>
+        <h4>数値をパーセント形式に変換する</h4>
+        <ul>
+          <li>デフォルト : {{ pipeParcent | percent }}</li>
+          <li>少数第一位 : {{ pipeParcent | percent: "1.0-1" }}</li>
+        </ul>
+      </div>
+      <div>
+        <h4>日付/時刻の整形</h4>
+        <ul>
+          <li>整形なし : {{ pipeDate }}</li>
+          <li>整形あり(デフォルト) : {{ pipeDate | date }}</li>
+          <li>整形あり(medium) : {{ pipeDate | date: "medium" }}</li>
+          <li>整形あり(書式指定) : {{ pipeDate | date: "y MM dd (EEE) " }}</li>
+        </ul>
+      </div>
+      <div>
+        <h4>数値によって文字列の表示を切り替える</h4>
+        <p>
+          favUsers:
+          <span *ngFor="let favUser of favUsers">
+            {{ favUser }}
+          </span>
+        </p>
+        <p>favMessages:{{ favUsers.length | i18nPlural: favMessages }}</p>
+        <input #userName type="text" />
+        <input
+          type="button"
+          (click)="pushArrayItem(userName.value); userName.value = ''"
+          value="いいね！"
+        />
+        <input type="button" (click)="popArrayItem()" value="pop" />
+      </div>
+      <div>
+        <h4></h4>
+        <ul>
+          <li *ngFor="let m of members">
+            {{ m.sex | i18nSelect: messages }}は{{ m.name }}です。
+          </li>
+        </ul>
       </div>
     </div>
   `,
@@ -276,9 +375,74 @@ export class AppComponent {
     <input type="button" onclick="alert('HOGE')" value="ボタン" />
   `;
   url: string = "http://www.wings.msn.to/";
+  // 双方向バインディング
   myName: string = "田中";
   myName2: string = "山口";
   myName3: string = "Hatanaka";
+  // パイプ
+  pipeTitle: string = "ＷＩＮＧＳ project";
+  obj: any = {
+    name: "Takashi",
+    gender: undefined,
+    birth: new Date(2007, 7, 15),
+    age: 12,
+    family: ["Taro", "Jiro", "Tanaka"],
+    work: function() {
+      console.log("Hello World!");
+    },
+    other: {
+      favorite: "肉",
+      memo: "イカす"
+    }
+  };
+  sliceStr: string = "アイウエオカキクケコ";
+  sliceAry: string[] = [
+    "あ",
+    "い",
+    "う",
+    "え",
+    "お",
+    "か",
+    "き",
+    "く",
+    "け",
+    "こ"
+  ];
+  pipePrice: number = 3500.1256;
+  pipeParcent: number = 0.123456;
+  pipeDate: Date = new Date();
+  favUsers: string[] = ["田中", "山田", "田島"];
+  favMessages: any = {
+    "=0": "[いいね！]されていません。",
+    "=1": "1人だけ[いいね！]と言ってくれています。",
+    other: "#人が[いいね！]と言っています。"
+  };
+  pushArrayItem(name: string) {
+    this.favUsers.push(name);
+  }
+  popArrayItem() {
+    this.favUsers.pop();
+  }
+
+  members: any[] = [
+    {
+      name: "たかし",
+      sex: "female"
+    },
+    {
+      name: "John",
+      sex: "male"
+    },
+    {
+      name: "MR.X",
+      sex: "unknown"
+    }
+  ];
+  messages = {
+    male: "彼",
+    female: "彼女",
+    unknown: "不明"
+  };
   constructor(private sanitizer: DomSanitizer) {
     this.safeMsg = sanitizer.bypassSecurityTrustHtml(this.html);
     this.safeUrl = sanitizer.bypassSecurityTrustResourceUrl(this.url);
