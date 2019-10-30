@@ -1,9 +1,13 @@
-import { Component } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import {
   DomSanitizer,
   SafeHtml,
   SafeResourceUrl
 } from "@angular/platform-browser";
+
+import { EventComponent } from "./event.component";
+import { BooksComponent } from "./books.component";
+import { WingsComponent } from "./wings.component";
 
 @Component({
   selector: "my-app",
@@ -256,11 +260,229 @@ import {
         </ul>
       </div>
     </div>
+    <!-- 4-2 -->
+    <div class="block">
+      <h3>4-2 ディレクティブ</h3>
+      <div>
+        <h4>ngIf</h4>
+        <form>
+          <label for="show">表示/非表示</label>
+          <input type="checkbox" name="show" id="show" [(ngModel)]="showFlag" />
+        </form>
+        <h5>elseのものを別に指定する場合</h5>
+        <div *ngIf="showFlag; else elseContent">
+          <p>文章だよおおおおおおおおおおお</p>
+        </div>
+        <ng-template #elseContent>
+          <div><p>非表示中</p></div>
+        </ng-template>
+        <h5>then...elseでそれぞれ表示するテンプレートを指定</h5>
+        <div *ngIf="showFlag; then trueContent; else elseContent2">
+          ここの中は無視される
+        </div>
+        <ng-template #trueContent>
+          <p>表示中2</p>
+        </ng-template>
+        <ng-template #elseContent2>
+          <p>非表示中2</p>
+        </ng-template>
+      </div>
+      <div>
+        <h4>ngSwitch</h4>
+        <form>
+          <select name="season" [(ngModel)]="season">
+            <option value="">四季を選択</option>
+            <option value="spring">春</option>
+            <option value="summer">夏</option>
+            <option value="autumn">秋</option>
+            <option value="winter">冬</option>
+          </select>
+        </form>
+        <div [ngSwitch]="season">
+          <span *ngSwitchCase="'spring'">春が選択されています。</span>
+          <span *ngSwitchCase="'summer'">夏が選択されています。</span>
+          <span *ngSwitchCase="'autumn'">秋が選択されています。</span>
+          <span *ngSwitchCase="'winter'">冬が選択されています。</span>
+          <span *ngSwitchDefault>選択してください</span>
+        </div>
+      </div>
+      <div>
+        <h4>ngFor</h4>
+        <table class="table" border="1">
+          <tr>
+            <th>ISBN</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Publisher</th>
+          </tr>
+          <tr *ngFor="let book of books">
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.price | currency: "JPY":true }}</td>
+            <td>{{ book.publisher }}</td>
+          </tr>
+        </table>
+
+        <h5>ngForのループ内で使える特殊変数</h5>
+        <table border="1">
+          <tr>
+            <th>値</th>
+            <th>index</th>
+            <th>first</th>
+            <th>last</th>
+            <th>odd(奇数)</th>
+            <th>even(偶数)</th>
+          </tr>
+          <tr
+            *ngFor="
+              let obj of eto;
+              index as i;
+              first as first;
+              last as last;
+              odd as odd;
+              even as even
+            "
+          >
+            <td>{{ obj }}</td>
+            <td>{{ i }}</td>
+            <td>{{ first ? "◯" : "-" }}</td>
+            <td>{{ last ? "◯" : "-" }}</td>
+            <td>{{ odd ? "◯" : "-" }}</td>
+            <td>{{ even ? "◯" : "-" }}</td>
+          </tr>
+        </table>
+
+        <h5>異なる要素のセットを繰り返し表示</h5>
+        <ng-container *ngFor="let article of articles">
+          <header>{{ article.title }}</header>
+          <div>{{ article.body }}</div>
+          <footer ng-repeat-end>{{ article.author }}</footer>
+        </ng-container>
+
+        <h5>アイテムの増減とトラッキング</h5>
+        <table class="table" border="1">
+          <tr>
+            <th>ISBN</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Publisher</th>
+          </tr>
+          <tr *ngFor="let book2 of books2; trackBy: trackFn">
+            <td>{{ book2.isbn }}</td>
+            <td>{{ book2.title }}</td>
+            <td>{{ book2.price | currency: "JPY":true }}</td>
+            <td>{{ book2.publisher }}</td>
+          </tr>
+        </table>
+
+        <input type="button" (click)="addBooks()" value="追加" />
+        <input type="button" (click)="removeBooks()" value="削除" />
+
+        <h5>ページング</h5>
+        <table class="table" border="1">
+          <tr>
+            <th>ISBN</th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Publisher</th>
+          </tr>
+          <tr *ngFor="let book3 of books3 | slice: start:start + bookLen">
+            <td>{{ book3.isbn }}</td>
+            <td>{{ book3.title }}</td>
+            <td>{{ book3.price | currency: "JPY":true }}</td>
+            <td>{{ book3.publisher }}</td>
+          </tr>
+        </table>
+
+        <ul class="pagination">
+          <li><a href="#" (click)="pager(0)">1</a></li>
+          <li><a href="#" (click)="pager(1)">2</a></li>
+          <li><a href="#" (click)="pager(2)">3</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>ngStyle</h4>
+        <form>
+          <input type="button" (click)="back = !back" value="背景色" />
+          <input type="button" (click)="fore = !fore" value="文字色" />
+          <input type="button" (click)="space = !space" value="padding" />
+        </form>
+        <div [ngStyle]="styles">
+          <p>あああああああああああ、ああああああ</p>
+        </div>
+        <div>
+          <div>
+            <h4>ngClass</h4>
+            <form>
+              <input
+                type="button"
+                (click)="ngClassStyles.back = !ngClassStyles.back"
+                value="背景色"
+              />
+              <input
+                type="button"
+                (click)="ngClassStyles.fore = !ngClassStyles.fore"
+                value="文字色"
+              />
+              <input
+                type="button"
+                (click)="ngClassStyles.space = !ngClassStyles.space"
+                value="padding"
+              />
+            </form>
+            <div [ngClass]="ngClassStyles">
+              <p>あああああああああああ、ああああああ</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4>ngPlural</h4>
+          <div [ngPlural]="pluralFavs.length">
+            <ng-template ngPluralCase="=0">[いいね！]されていません。</ng-template>
+            <ng-template ngPluralCase="=1">1人にだけ[いいね！]されています。</ng-template>
+            <ng-template ngPluralCase="other">{{pluralFavs.length}}人に[いいね！]されています。</ng-template>
+            <form>
+              <input type="button" (click)="pluralFavs.push('000')" value="いいね追加">
+              <input type="button" (click)="pluralFavs.pop()" value="いいね取り消し">
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <h4>ngTemplateOutlet</h4>
+          <ng-template #myTemp let-isbn="isbn" let-title="title" let-price="price" let-publisher="publisher">
+            <ul>
+              <li>{{isbn}}</li>
+              <li>{{title}}</li>
+              <li>{{price}}円</li>
+              <li>{{publisher}}</li>
+            </ul>
+          </ng-template>
+  
+          <select name="temp-book" [(ngModel)]="tempBook">
+            <option *ngFor="let b of books; let i = index" [value]="i">
+            {{b.title}}
+            </option> 
+          </select>
+          <ng-container *ngTemplateOutlet="myTemp; context: books[tempBook]">
+          </ng-container>
+        </div>
+
+        <div>
+          <h4>ngComponentOutlet</h4>
+          <ng-container *ngComponentOutlet="bunner">
+          </ng-container>
+        </div>
+
+      </div><!-- ディレクティブ -->
+      
+    </div><!-- 全体 -->
   `,
   styles: [
     `
       .block {
         border: solid 1px;
+        padding: 20px 0;
       }
       .box {
         margin: 50px;
@@ -290,6 +512,18 @@ import {
         margin: 50px auto auto 30px;
         padding: 20px;
         border: 1px solid #000;
+      }
+      .table {
+        border: 1px solid black;
+      }
+      .back {
+        background-color: #f00;
+      }
+      .fore {
+        color: #fff;
+      }
+      .space {
+        padding: 15px;
       }
     `
   ]
@@ -423,7 +657,6 @@ export class AppComponent {
   popArrayItem() {
     this.favUsers.pop();
   }
-
   members: any[] = [
     {
       name: "たかし",
@@ -443,6 +676,196 @@ export class AppComponent {
     female: "彼女",
     unknown: "不明"
   };
+
+  //4-2 : ディレクティブ
+  // ngIf
+  showFlag: boolean = false;
+  //ngSwitch
+  season: string = "";
+  //ngFor
+  books: { isbn: string; title: string; price: number; publisher: string }[] = [
+    {
+      isbn: "978-4-7741-8411-1",
+      title: "改定新版 Javascript 本格入門",
+      price: 2980,
+      publisher: "技術評論社"
+    },
+    {
+      isbn: "978-4-7741-8411-2",
+      title: "AAAA",
+      price: 2000,
+      publisher: "A社"
+    },
+    {
+      isbn: "978-4-7741-8411-3",
+      title: "BBBB",
+      price: 3000,
+      publisher: "B社"
+    },
+    {
+      isbn: "978-4-7741-8411-4",
+      title: "CCC",
+      price: 4000,
+      publisher: "C社"
+    }
+  ];
+  eto: string[] = [
+    "子",
+    "丑",
+    "寅",
+    "卯",
+    "辰",
+    "巳",
+    "午",
+    "未",
+    "申",
+    "酉",
+    "戌",
+    "亥"
+  ];
+  articles: { title: string; body: string; author: string }[] = [
+    { title: "1のタイトル", body: "1のボディ", author: "1の作者" },
+    { title: "2のタイトル", body: "2のボディ", author: "2の作者" },
+    { title: "3のタイトル", body: "3のボディ", author: "3の作者" }
+  ];
+  books2: {
+    isbn: string;
+    title: string;
+    price: number;
+    publisher: string;
+  }[] = [
+    {
+      isbn: "978-4-7741-8411-1",
+      title: "改定新版 Javascript 本格入門",
+      price: 2980,
+      publisher: "技術評論社"
+    },
+    {
+      isbn: "978-4-7741-8411-2",
+      title: "AAAA",
+      price: 2000,
+      publisher: "A社"
+    },
+    {
+      isbn: "978-4-7741-8411-3",
+      title: "BBBB",
+      price: 3000,
+      publisher: "B社"
+    },
+    {
+      isbn: "978-4-7741-8411-4",
+      title: "CCC",
+      price: 4000,
+      publisher: "C社"
+    }
+  ];
+  addBooks(): void {
+    const booksCnt = this.books2.length + 1;
+    this.books2.push({
+      isbn: "978-4-7741-8411-" + booksCnt,
+      title: booksCnt + "さん",
+      price: booksCnt * 1000,
+      publisher: booksCnt + "社"
+    });
+  }
+  removeBooks(): void {
+    this.books2.pop();
+  }
+  trackFn(index: any, book: any) {
+    return book.isbn;
+  }
+
+  start: number = 0;
+  bookLen: number = 3;
+  books3: {
+    isbn: string;
+    title: string;
+    price: number;
+    publisher: string;
+  }[] = [
+    {
+      isbn: "978-4-7741-8411-1",
+      title: "改定新版 Javascript 本格入門",
+      price: 2980,
+      publisher: "技術評論社"
+    },
+    {
+      isbn: "978-4-7741-8411-2",
+      title: "AAAA",
+      price: 2000,
+      publisher: "A社"
+    },
+    {
+      isbn: "978-4-7741-8411-3",
+      title: "BBBB",
+      price: 3000,
+      publisher: "B社"
+    },
+    {
+      isbn: "978-4-7741-8411-4",
+      title: "CCC",
+      price: 4000,
+      publisher: "C社"
+    },
+    {
+      isbn: "978-4-7741-8411-5",
+      title: "CCC",
+      price: 4000,
+      publisher: "C社"
+    },
+    {
+      isbn: "978-4-7741-8411-6",
+      title: "CCC",
+      price: 4000,
+      publisher: "C社"
+    },
+    {
+      isbn: "978-4-7741-8411-7",
+      title: "CCC",
+      price: 4000,
+      publisher: "C社"
+    }
+  ];
+  pager(page: number) {
+    this.start = this.bookLen * page;
+  }
+  //ngStyle
+  back: boolean = true;
+  fore: boolean = true;
+  space: boolean = true;
+  get styles() {
+    return {
+      backgroundColor: this.back ? "#f00" : "",
+      color: this.fore ? "#fff" : "#000",
+      fontWeight: "bold",
+      "padding.px": this.space ? 15 : 5
+    };
+  }
+  ngClassStyles = {
+    back: false,
+    fore: false,
+    space: false
+  };
+  pluralFavs: string[] = ['aaa','bbb','ccc']
+  tempBook: number=0;
+
+  //
+  interval: any;
+  comps = [EventComponent,BooksComponent,WingsComponent]
+  current = 0; 
+  bunner :any = EventComponent;
+
+  ngOnInit() {
+    this.interval = setInterval(() => {
+      this.current = (this.current + 1) % this.comps.length;
+      this.bunner = this.comps[this.current];
+    },3000)
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.interval);
+  }
+
   constructor(private sanitizer: DomSanitizer) {
     this.safeMsg = sanitizer.bypassSecurityTrustHtml(this.html);
     this.safeUrl = sanitizer.bypassSecurityTrustResourceUrl(this.url);
