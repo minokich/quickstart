@@ -52,6 +52,9 @@ import {
         </textarea>
         <span *ngIf="memo.errors?.maxlength">30文字以内</span>
       </div>
+      <div>
+        <input type="submit" value="送信" [disabled]="myForm.invalid" />
+      </div>
     </form>
   `
 })
@@ -75,11 +78,11 @@ export class AppComponent {
     memo: this.memo
   });
   show() {
-    console.log("mail:" + this.mail.value);
-    console.log("passwd:" + this.passwd.value);
-    console.log("name:" + this.name.value);
-    console.log("memo:" + this.memo.value);
-    console.log("all:");
+    console.log("mail : " + this.mail.value);
+    console.log("passwd : " + this.passwd.value);
+    console.log("name : " + this.name.value);
+    console.log("memo : " + this.memo.value);
+    console.log("all : ");
     console.log(this.myForm.value);
   }
 }
